@@ -1,6 +1,5 @@
 import type { Subscription } from "../../types/subscription";
 import SubscriptionStatusBadge from "./StatusBadge";
-import ActionMenu from "./ActionMenu";
 
 interface Props {
   subscriptions: Subscription[];
@@ -53,7 +52,7 @@ export default function SubscriptionsTable({
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    <div className="bg-white border border-gray-200 rounded-xl">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
@@ -114,12 +113,22 @@ export default function SubscriptionsTable({
 
                 {/* Actions */}
                 <td className="px-6 py-4">
-                  <div className="flex justify-end">
-                    <ActionMenu
-                      subscription={sub}
-                      cancelling={cancellingId === sub.subscription_id}
-                      onCancel={onCancel}
-                    />
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      View
+                    </button>
+
+                    {sub.status_name === "ACTIVE" && (
+                      <button
+                        onClick={() => onCancel(sub)}
+                        disabled={cancellingId === sub.subscription_id}
+                        className="px-3 py-1.5 rounded-lg border border-red-200 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {cancellingId === sub.subscription_id ? "Cancelling..." : "Cancel"}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
