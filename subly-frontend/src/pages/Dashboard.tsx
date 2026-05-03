@@ -38,7 +38,7 @@ export default function DashboardPage() {
     return (
         <div>
             {/* Title */}
-            <h1 className="text-2xl font-semibold">Dashboard</h1>
+            <h1 className="text-2xl font-semibold">Subly Dashboard</h1>
             <p className="text-gray-500 mb-6">
                 Welcome back! Here's an overview of your subscription business.
             </p>
