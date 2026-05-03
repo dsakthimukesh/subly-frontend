@@ -7,6 +7,7 @@ import DashboardPage from "../pages/Dashboard";
 import CustomersPage from "../pages/CustomersPage";
 import PlansPage from "../pages/PlansPage";
 import SubscriptionsPage from "../pages/SubscriptionsPage";
+import InvoicesPage from "../pages/InvoicesPage";
 
 export const router = createBrowserRouter([
   {
@@ -24,12 +25,7 @@ export const router = createBrowserRouter([
         <AppLayout />
       </ProtectedRoute>
     ),
-    children: [
-      {
-        index: true,
-        element: <DashboardPage />,
-      },
-    ],
+    children: [{ index: true, element: <DashboardPage /> }],
   },
   {
     path: "/customers",
@@ -57,5 +53,14 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [{ index: true, element: <SubscriptionsPage /> }],
+  },
+  {
+    path: "/invoices",
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <InvoicesPage /> }],
   },
 ]);

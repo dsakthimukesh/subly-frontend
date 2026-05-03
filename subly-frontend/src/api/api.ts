@@ -143,3 +143,14 @@ export const cancelSubscription = async (id: string): Promise<any> => {
   const res = await api.patch(`/subscriptions/${id}/cancel`);
   return res.data;
 };
+
+// ─── Invoices Endpoints ───────────────────────────────────────────────────────
+export const getInvoices = async (): Promise<any> => {
+  const res = await api.get("/invoices");
+  return res.data;
+};
+
+export const markInvoicePaid = async (id: string): Promise<any> => {
+  const res = await api.put(`/invoices/manage/${id}`);
+  return res.data;
+};
