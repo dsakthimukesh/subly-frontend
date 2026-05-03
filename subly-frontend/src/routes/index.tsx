@@ -4,7 +4,9 @@ import SignupPage from "../components/Signup";
 import ProtectedRoute from "./ProtectedRoutes";
 import AppLayout from "../layouts/AppLayout";
 import DashboardPage from "../pages/Dashboard";
-
+import CustomersPage from "../pages/CustomersPage";
+import PlansPage from "../pages/PlansPage";
+import SubscriptionsPage from "../pages/SubscriptionsPage";
 
 export const router = createBrowserRouter([
   {
@@ -13,9 +15,9 @@ export const router = createBrowserRouter([
   },
   {
     path: "/signup",
-    element: <SignupPage />
+    element: <SignupPage />,
   },
-   {
+  {
     path: "/dashboard",
     element: (
       <ProtectedRoute>
@@ -28,5 +30,32 @@ export const router = createBrowserRouter([
         element: <DashboardPage />,
       },
     ],
+  },
+  {
+    path: "/customers",
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <CustomersPage /> }],
+  },
+  {
+    path: "/plans",
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <PlansPage /> }],
+  },
+  {
+    path: "/subscriptions",
+    element: (
+      <ProtectedRoute>
+        <AppLayout />
+      </ProtectedRoute>
+    ),
+    children: [{ index: true, element: <SubscriptionsPage /> }],
   },
 ]);
