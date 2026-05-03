@@ -1,18 +1,35 @@
 import { useEffect, useState } from "react";
-import { getStats } from "../api/api";
+import { getStats, getSubscriptions } from "../api/api";
 import { CreditCard, TrendingUp, AlertCircle, FileWarning } from "lucide-react";
+import type { Subscription } from "../types/subscription";
 
 export default function DashboardPage() {
     const [stats, setStats] = useState<any>(null);
+    const [recentSubs, setRecentSubs] = useState<Subscription[]>([]);
 
     useEffect(() => {
         fetchStats();
+        fetchRecentSubscriptions();
     }, []);
 
     const fetchStats = async () => {
         try {
             const res = await getStats();
             setStats(res);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchRecentSubscriptions = async () => {
+        try {
+            const data = await getSubscriptions();
+            const list: Subscription[] = Array.isArray(data) ? data : [];
+            // Sort by start_date descending, take top 5
+            const sorted = [...list].sort(
+                (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+            );
+            setRecentSubs(sorted.slice(0, 5));
         } catch (err) {
             console.error(err);
         }
@@ -34,21 +51,18 @@ export default function DashboardPage() {
                     icon={CreditCard}
                     color="bg-blue-100 text-blue-600"
                 />
-
                 <StatCard
                     title="Monthly Revenue"
                     value={`₹${stats?.revenue || 0}`}
                     icon={TrendingUp}
                     color="bg-green-100 text-green-600"
                 />
-
                 <StatCard
                     title="Expiring Subscriptions"
                     value={stats?.expiring || 0}
                     icon={AlertCircle}
                     color="bg-orange-100 text-orange-600"
                 />
-
                 <StatCard
                     title="Unpaid Invoices"
                     value={stats?.unpaid || 0}
@@ -69,25 +83,35 @@ export default function DashboardPage() {
                             <th className="text-left pb-3 font-medium text-gray-500 w-1/4">Customer</th>
                             <th className="text-left pb-3 font-medium text-gray-500 w-1/5">Plan</th>
                             <th className="text-left pb-3 font-medium text-gray-500 w-1/5">Start Date</th>
-                            <th className="text-left pb-3 font-medium text-gray-500 w-1/5">Status</th>
-                            <th className="text-right pb-3 font-medium text-gray-500">Amount</th>
+                            <th className="text-left pb-3 font-medium text-gray-500">Status</th>
                         </tr>
                     </thead>
 
                     <tbody className="divide-y divide-gray-100">
-                        {dummyData.map((item, i) => (
-                            <tr key={i} className="hover:bg-gray-50 transition-colors">
-                                <td className="py-3.5 text-gray-800 font-medium">{item.customer}</td>
-                                <td className="py-3.5 text-gray-600">{item.plan}</td>
-                                <td className="py-3.5 text-gray-600">{item.date}</td>
-                                <td className="py-3.5">
-                                    <span className="inline-flex items-center bg-green-50 text-green-600 border border-green-200 px-2.5 py-0.5 rounded-full text-xs font-medium">
-                                        Active
-                                    </span>
+                        {recentSubs.length === 0 ? (
+                            <tr>
+                                <td colSpan={4} className="py-6 text-center text-gray-400 text-sm">
+                                    No subscriptions found.
                                 </td>
-                                <td className="py-3.5 text-right text-gray-800 font-medium">{item.amount}</td>
                             </tr>
-                        ))}
+                        ) : (
+                            recentSubs.map((sub) => (
+                                <tr key={sub.subscription_id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="py-3.5 text-gray-800 font-medium">{sub.customer_name}</td>
+                                    <td className="py-3.5 text-gray-600">{sub.plan_name}</td>
+                                    <td className="py-3.5 text-gray-600">
+                                        {new Date(sub.start_date).toLocaleDateString("en-IN", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                        })}
+                                    </td>
+                                    <td className="py-3.5">
+                                        <StatusBadge status={sub.status_name} />
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -95,6 +119,25 @@ export default function DashboardPage() {
     );
 }
 
+// ─── Status badge ─────────────────────────────────────────────────────────────
+function StatusBadge({ status }: { status: string }) {
+    const styles: Record<string, string> = {
+        ACTIVE:    "bg-green-50 text-green-600 border-green-200",
+        EXPIRED:   "bg-red-50 text-red-600 border-red-200",
+        CANCELLED: "bg-gray-100 text-gray-500 border-gray-200",
+    };
+    const labels: Record<string, string> = {
+        ACTIVE: "Active", EXPIRED: "Expired", CANCELLED: "Cancelled",
+    };
+    const cls = styles[status] ?? styles["CANCELLED"];
+    return (
+        <span className={`inline-flex items-center border px-2.5 py-0.5 rounded-full text-xs font-medium ${cls}`}>
+            {labels[status] ?? status}
+        </span>
+    );
+}
+
+// ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ title, value, icon: Icon, color }: any) {
     return (
         <div className="bg-white rounded-xl border border-gray-200 p-5 flex justify-between items-center">
@@ -102,43 +145,9 @@ function StatCard({ title, value, icon: Icon, color }: any) {
                 <p className="text-sm text-gray-500">{title}</p>
                 <p className="text-2xl font-semibold mt-2">{value}</p>
             </div>
-
             <div className={`p-3 rounded-xl ${color}`}>
                 <Icon size={18} />
             </div>
         </div>
     );
 }
-
-const dummyData = [
-    {
-        customer: "Reliance Digital",
-        plan: "Enterprise",
-        date: "2025-01-10",
-        amount: "₹50,000",
-    },
-    {
-        customer: "Tata Motors",
-        plan: "Professional",
-        date: "2025-01-09",
-        amount: "₹25,000",
-    },
-    {
-        customer: "Infosys Ltd",
-        plan: "Enterprise",
-        date: "2025-01-08",
-        amount: "₹50,000",
-    },
-    {
-        customer: "Wipro Technologies",
-        plan: "Basic",
-        date: "2025-01-07",
-        amount: "₹10,000",
-    },
-    {
-        customer: "Mahindra & Mahindra",
-        plan: "Professional",
-        date: "2025-01-06",
-        amount: "₹25,000",
-    },
-];

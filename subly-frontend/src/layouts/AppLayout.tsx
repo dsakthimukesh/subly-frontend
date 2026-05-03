@@ -1,15 +1,14 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import { sidebarItems } from "../config/sidebar";
+import { useAuth } from "../context/AuthContext";
 
 export default function AppLayout() {
     return (
         <div className="flex h-screen bg-gray-50">
-            {/* Sidebar */}
             <Sidebar />
-
-            {/* Main */}
-            <div className="flex-1 flex flex-col">
-                <div className="p-6 overflow-auto">
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 p-6 overflow-auto">
                     <Outlet />
                 </div>
             </div>
@@ -20,13 +19,23 @@ export default function AppLayout() {
 function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/", { replace: true });
+    };
 
     return (
-        <div className="w-64 bg-white border-r border-gray-200 p-6">
-            <h1 className="text-xl font-semibold">Subly</h1>
-            <p className="text-sm text-gray-500 mb-6">TechCorp India</p>
+        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+            {/* Brand */}
+            <div className="px-6 pt-6 pb-4">
+                <h1 className="text-xl font-semibold">Subly</h1>
+                <p className="text-sm text-gray-500">TechCorp India</p>
+            </div>
 
-            <nav className="space-y-2">
+            {/* Nav items */}
+            <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
                 {sidebarItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     const Icon = item.icon;
@@ -47,6 +56,17 @@ function Sidebar() {
                     );
                 })}
             </nav>
+
+            {/* Logout — pinned to bottom */}
+            <div className="px-4 py-4 border-t border-gray-100">
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                >
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                </button>
+            </div>
         </div>
     );
 }

@@ -154,3 +154,23 @@ export const markInvoicePaid = async (id: string): Promise<any> => {
   const res = await api.put(`/invoices/manage/${id}`);
   return res.data;
 };
+
+// ─── Settings Endpoints ───────────────────────────────────────────────────────
+export const getCompany = async (): Promise<any> => {
+  const res = await api.get("/company");
+  return res.data;
+};
+
+export const updateCompany = async (data: {
+  company_name: string;
+  phone: string;
+  address: string;
+}): Promise<any> => {
+  const res = await api.put("/company/manage", data);
+  return res.data;
+};
+
+export const generateApiKey = async (): Promise<any> => {
+  const res = await api.post("/api-key");
+  return res.data;
+};
